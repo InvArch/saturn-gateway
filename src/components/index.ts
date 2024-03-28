@@ -1,3 +1,3 @@
-export { default as FormattedCall } from "./FormattedCall";
-export { default as Identity } from "./Identity";
-export { default as TalismanIdenticon } from "./TalismanIdenticon";
+export { default as FormattedCall } from "./legos/FormattedCall";
+export { default as Identity } from "./identity/Identity";
+export { default as TalismanIdenticon } from "./identity/TalismanIdenticon";

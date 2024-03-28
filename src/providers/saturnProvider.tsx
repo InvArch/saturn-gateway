@@ -1,51 +1,97 @@
-import { createContext, useContext } from "solid-js";
+import { createContext, createMemo, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { type Saturn, type MultisigDetails } from "@invarch/saturn-sdk";
+import { MultisigItem } from "../utils/consts";
 
-export type SaturnContextType = {
-    state: { saturn?: Saturn; multisigId?: number; multisigAddress?: string; multisigDetails?: MultisigDetails },
-    setters: any,
+interface SaturnContextState {
+  saturn?: Saturn;
+  multisigId?: number | undefined;
+  multisigAddress?: string;
+  multisigDetails?: MultisigDetails,
+  multisigItems?: MultisigItem[];
 };
 
-export const SaturnContext = createContext<SaturnContextType>({ state: {}, setters: {} });
+export type SaturnContextType = {
+  state: SaturnContextState,
+  setters: {
+    setSaturn: (saturn: Saturn) => void;
+    setMultisigId: (multisigId: number | undefined) => void;
+    setMultisigAddress: (multisigAddress: string) => void;
+    setMultisigDetails: (multisigDetails: MultisigDetails) => void;
+    setMultisigItems: (multisigItems: MultisigItem[]) => void;
+    logout: () => void;
+  },
+};
+
+const defaultState: SaturnContextState = {
+  saturn: undefined,
+  multisigId: undefined,
+  multisigAddress: undefined,
+  multisigDetails: undefined,
+  multisigItems: [],
+};
+
+const defaultSetters = {
+  setSaturn: () => { },
+  setMultisigId: () => { },
+  setMultisigAddress: () => { },
+  setMultisigDetails: () => { },
+  setMultisigItems: () => { },
+  logout: () => { },
+};
+
+export const SaturnContext = createContext<SaturnContextType>({
+  state: defaultState, setters: defaultSetters
+});
 
 export function SaturnProvider(props: any) {
-    const [state, setState] = createStore<{ saturn?: Saturn; multisigId?: number; multisigAddress?: string; multisigDetails?: MultisigDetails }>({});
+  const [state, setState] = createStore<SaturnContextState>(defaultState);
 
-    const value = {
-      state,
-       setters: {
-           setSaturn(saturn: Saturn) {
-               setState("saturn", saturn);
-           },
+  const value = createMemo(() => ({
+    state,
+    setters: {
+      setSaturn(saturn: Saturn) {
+        setState("saturn", saturn);
+      },
 
-           setMultisigId(multisigId: number) {
-               setState("multisigId", multisigId);
-           },
+      setMultisigId(multisigId: number | undefined) {
+        setState("multisigId", multisigId);
+      },
 
-           setMultisigAddress(multisigAddress: string) {
-               setState("multisigAddress", multisigAddress);
-           },
+      setMultisigAddress(multisigAddress: string) {
+        setState("multisigAddress", multisigAddress);
+      },
 
-           setMultisigDetails(multisigDetails: MultisigDetails) {
-               setState("multisigDetails", multisigDetails);
-           }
-       }
-    };
+      setMultisigDetails(multisigDetails: MultisigDetails) {
+        setState("multisigDetails", multisigDetails);
+      },
 
-    return (
-        <SaturnContext.Provider value={value}>
-            {props.children}
-        </SaturnContext.Provider>
-    );
+      setMultisigItems(multisigItems: MultisigItem[]) {
+        setState("multisigItems", multisigItems);
+      },
+
+      logout() {
+        setState("multisigId", undefined);
+        setState("multisigAddress", undefined);
+        setState("multisigDetails", undefined);
+        setState("multisigItems", []);
+      }
+    }
+  }));
+
+  return (
+    <SaturnContext.Provider value={value()}>
+      {props.children}
+    </SaturnContext.Provider>
+  );
 }
 
 export function useSaturnContext() {
-    const context = useContext(SaturnContext);
+  const context = useContext(SaturnContext);
 
-    if (!context) {
-        throw new Error("useProposeContext: cannot find a ProposeContext")
-    }
+  if (!context) {
+    throw new Error("useProposeContext: cannot find a ProposeContext");
+  }
 
-    return context;
+  return context;
 }

@@ -1,5 +1,9 @@
 node_modules
 dist
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+.yarn
 
 extension/addon/**/*.js
 
@@ -10,3 +14,5 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+
+**/.DS_Store
